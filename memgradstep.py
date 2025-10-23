@@ -7,18 +7,19 @@ class MemGradStep:
         self.path = [x0.copy()]
         self.memory = memory
         self.decay = decay
-
+        self.obs = []
     def step(self):
         x = self.path[-1]
         grad = self.f(x)
-        min=0.0001
+        sz=0.0001
         for lx in self.path[-self.memory:-2]:
             l=np.linalg.norm(lx-x)
-            if l>min:
-                min=l
+            if l>sz:
+                sz=l
         gradn=np.linalg.norm(grad)
-        x_new = x - self.decay *min/gradn * grad
+        x_new = x - self.decay *sz/gradn * grad
         self.path.append(x_new.copy())
+        self.obs.append(sz)
 
     def iterate(self, iterations=100):
         for i in range(iterations):
@@ -26,4 +27,4 @@ class MemGradStep:
             l=np.linalg.norm(self.path[-1])
             if l > 20:
                 break
-        return np.array(self.path)
+        return np.array(self.path), self.obs
